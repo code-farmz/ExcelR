@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>ExcelR.dll</id>
+    <version>1.0.0</version>
+    <authors>Jitender</authors>
+    <owners>Jitender</owners>
+    <projectUrl>https://github.com/JitenderKundu/ExcelR</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>ExcelR is a simple C# library that help to import export helper using npoi</description>
+    <releaseNotes>Added export helper and import helper.</releaseNotes>
+    <copyright>Copyright 2017</copyright>
+    <tags>ExcelR ExcelReader ExcelImporter ExcelExporter ExcelHelper ExcelWriter</tags>
+    <dependencies>
+      <dependency id="NPOI" version="2.3.0" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="readme.txt" target="lib" />
+    <file src="bin\Release\ExcelR.dll" target="lib\net45" />
+    <file src="bin\Release\ExcelR.XML" target="lib\net45" />
+    </files>
+</package>
