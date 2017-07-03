@@ -1,5 +1,5 @@
 # ExcelR
-This project open source free to use that helps to create/read xlsx files in an easy way.
+This project helps to create/read xlsx files in an easy way.
 
 # Why ExcelR
 With the help of ExcelR you can
