@@ -16,23 +16,44 @@ namespace ExcelR
     {
 
         private static IDictionary<string, string> _propColumnMap;
-        public static ISheet GetSheet(this IWorkbook workbook, string sheetName)
+        public static ISheet GetSheet(this IWorkbook workbook, string sheetName= "Sheet1")
         {
             return workbook.GetSheet(sheetName);
         }
 
-        public static ISheet GetSheet(Stream stream, string sheetName)
+        public static ISheet GetSheet(Stream stream, string sheetName="Sheet1")
         {
             var workbook = GetWorkbook(stream);
             return workbook.GetSheet(sheetName);
         }
 
+        public static ISheet GetSheet(string filePath, string sheetName = "Sheet1")
+        {
+            var workbook = GetWorkbook(filePath);
+            return workbook.GetSheet(sheetName);
+        }
         public static IWorkbook GetWorkbook(Stream stream)
         {
             return new XSSFWorkbook(stream);
         }
 
-        public static IList<TModel> Import<TModel>(this ISheet sheet)
+        public static IWorkbook GetWorkbook(string filePath)
+        {
+            if(!File.Exists(filePath))
+                throw new Exception("File not found");
+            using (var stream= new MemoryStream(File.ReadAllBytes(filePath)))
+            {
+                return new XSSFWorkbook(stream);
+            }
+        }
+
+        /// <summary>
+        /// Read data from given sheet and fill to given TModel
+        /// </summary>
+        /// <typeparam name="TModel"></typeparam>
+        /// <param name="sheet"></param>
+        /// <returns></returns>
+        public static IList<TModel> Read<TModel>(this ISheet sheet)
         {
             var list = new List<TModel>();
 
@@ -63,12 +84,9 @@ namespace ExcelR
                     var propType = propertyInfo.PropertyType;
                     var name = propertyInfo.Name;
                     var attribute = propertyInfo.GetCustomAttributes(typeof(ExcelRProp), false).FirstOrDefault();
-                    if (attribute != null)
-                    {
-                        var attrVal = attribute as ExcelRProp;
-                        if (string.IsNullOrEmpty(attrVal?.Name))
-                            name = attrVal?.Name;
-                    }
+                    var attrVal = attribute as ExcelRProp;
+                    if (!string.IsNullOrEmpty(attrVal?.Name))
+                        name = attrVal.Name;
                     var cellNo = mapDict[name];
                     if (cellNo != null)
                     {
@@ -79,27 +97,27 @@ namespace ExcelR
                             {
                                 propertyInfo.SetValue(model, GetStringCellValue(cell));
                             }
-                            else if (propType == typeof(bool))
+                            else if (propType == typeof(bool) || propType == typeof(bool?))
                             {
                                 propertyInfo.SetValue(model, GetBooleanCellValue(cell));
                             }
-                            else if (propType == typeof(int))
+                            else if (propType == typeof(int) || propType == typeof(int?))
                             {
                                 propertyInfo.SetValue(model, Convert.ToInt32(GetStringCellValue(cell)));
                             }
-                            else if (propType == typeof(double))
+                            else if (propType == typeof(double) || propType == typeof(double?))
                             {
                                 propertyInfo.SetValue(model, Convert.ToDouble(GetStringCellValue(cell)));
                             }
-                            else if (propType == typeof(float))
+                            else if (propType == typeof(float) || propType == typeof(float?))
                             {
                                 var val = GetStringCellValue(cell);
                                 if (!string.IsNullOrEmpty(val))
                                     propertyInfo.SetValue(model, float.Parse(val));
                             }
-                            else if (propType == typeof(DateTime))
+                            else if (propType == typeof(DateTime) || propType == typeof(DateTime?))
                             {
-                                propertyInfo.SetValue(model, Convert.ToDateTime(GetStringCellValue(cell)));
+                                propertyInfo.SetValue(model, GetDateTimeCellValue(cell));
                             }
                         }
                     }
@@ -121,8 +139,8 @@ namespace ExcelR
                 if (attribute != null)
                 {
                     var attrVal = attribute as ExcelRProp;
-                    if (string.IsNullOrEmpty(attrVal?.Name))
-                        name = attrVal?.Name;
+                    if (!string.IsNullOrEmpty(attrVal?.Name))
+                        name = attrVal.Name;
                 }
                 var matchingCell =
                     headerRow.Cells.FirstOrDefault(
@@ -131,7 +149,7 @@ namespace ExcelR
                             cell.StringCellValue.ToLower().Equals(name.ToLower()));
                 if (matchingCell != null)
                 {
-                    _propColumnMap.Add(propertyInfo.Name, matchingCell.ColumnIndex.ToString());
+                    _propColumnMap.Add(name, matchingCell.ColumnIndex.ToString());
                 }
             }
 
@@ -169,24 +187,21 @@ namespace ExcelR
             }
         }
 
-        public static DateTime? GetDateTimeCellValue(ICell cell, string format = "dd-MM-yyyy")
+        public static DateTime? GetDateTimeCellValue(ICell cell)
         {
             if (cell == null)
                 return null;
             switch (cell.CellType)
             {
                 case CellType.String:
-                    return DateTime.ParseExact(cell.StringCellValue, format, null);
+                    return DateTime.Parse(cell.StringCellValue);
 
                 case CellType.Numeric:
-                    if (DateUtil.IsCellDateFormatted(cell))
                         return cell.DateCellValue;
-                    break;
 
                 default:
                     return null;
             }
-            return null;
         }
 
 

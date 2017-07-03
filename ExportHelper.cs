@@ -67,7 +67,7 @@ namespace ExcelR
             Turquoise,
             Violet,
             White,
-            Yellow,
+            Yellow
 
         }
 
@@ -124,53 +124,39 @@ namespace ExcelR
             {
                 var propName = propertyInfo.info.Name;
                 var attribute = propertyInfo.info.GetCustomAttributes(typeof(ExcelRProp), false).FirstOrDefault();
-                if (attribute != null)
-                {
-                    var attrVal = attribute as ExcelRProp;
-                    if (string.IsNullOrEmpty(attrVal?.Name))
-                        propName = attrVal.Name;
-                }
+                var attrVal = attribute as ExcelRProp;
+                if (!string.IsNullOrEmpty(attrVal?.Name))
+                    propName = attrVal.Name;
                 var hearderRow = sheet.CreateRow(0, headerStyle);
                 hearderRow.SetValue(propertyInfo.index, propName, headerStyle, color);
             }
         }
 
-        private static void FillData<TModel>(this ISheet sheet, IList<TModel> data, Style textStyle = Style.Normal, Color textColor = Color.Black)
+        private static void FillData<TModel>(this ISheet sheet, IList<TModel> data, Style textStyle = Style.Normal,  Color textColor = Color.Black)
         {
+            
             foreach (var modelInfo in data.Select((model, index) => new { index, model }))
             {
                 var row = sheet.CreateRow(modelInfo.index + 1, textStyle);
                 foreach (var propertyInfo in modelInfo.model.GetType().GetProperties().Select((info, index) => new { info, index }))
                 {
                     var attribute = propertyInfo.info.GetCustomAttributes(typeof(ExcelRProp), false).FirstOrDefault();
-                    if (attribute != null)
+                    var attrVal = attribute as ExcelRProp;
+                    try
                     {
-                        var attrVal = attribute as ExcelRProp;
-                        if (string.IsNullOrEmpty(attrVal?.Name))
-                           textColor = attrVal.TextColor;
+                        if (attrVal?.ColTextColor != null)
+                            textColor = (Color)Enum.Parse(typeof(Color), attrVal.ColTextColor, true);
                     }
+                    catch (Exception)
+                    {
+                        
+                        throw new Exception($"{attrVal.ColTextColor} is not a valid color");
+                    }
+                   
                     var propType = propertyInfo.info.PropertyType;
                     var propVal = propertyInfo.info.GetValue(modelInfo.model);
-                    if (propType == typeof(string))
-                    {
-                        row.SetValue(propertyInfo.index, propVal?.ToString(),textStyle,textColor);
-                    }
-                    else if (propType == typeof (bool))
-                    {
-                        row.SetValue(propertyInfo.index, Convert.ToBoolean(propVal.ToString()),textStyle, textColor);
-                    }
-                    else if(propType == typeof(int))
-                    {
-                         row.SetValue(propertyInfo.index, Convert.ToInt32(propVal.ToString()), textStyle, textColor);
-                    }
-                    else if (propType == typeof(double) || propType == typeof(float))
-                    {
-                        row.SetValue(propertyInfo.index, Convert.ToDouble(propVal.ToString()), textStyle, textColor);
-                    }
-                    else if (propType == typeof(DateTime))
-                    {
-                        row.SetValue(propertyInfo.index, Convert.ToDateTime(propVal.ToString()), textStyle, textColor);
-                    }
+                    row.SetValue(propertyInfo.index, propType,propVal,textStyle,textColor);
+                    textColor = Color.Black;
                 }
             }
         }
@@ -179,7 +165,7 @@ namespace ExcelR
         /// 
         /// </summary>
         /// <returns></returns>
-        public static IWorkbook GetWorkbook(string defaultSheetName = "Data")
+        public static IWorkbook GetWorkbook(string defaultSheetName = "Sheet1")
         {
             if (_workbook != null)
                 return _workbook;
@@ -232,7 +218,7 @@ namespace ExcelR
         /// 
         /// </summary>
         /// <returns></returns>
-        public static ISheet GetSheet(string sheetName = "Data")
+        public static ISheet GetSheet(string sheetName = "Sheet1")
         {
             return GetWorkbook().GetSheet(sheetName) ?? _workbook.CreateSheet(sheetName);
         }
@@ -269,13 +255,7 @@ namespace ExcelR
         public static void SetValue(this IRow row, int colNnum, string value, Style style = Style.Normal, Color color = Color.Black)
         {
             var cell = row.CreateCell(colNnum);
-            cell.SetStyle(style);
-            if (color != Color.Black)
-            {
-                var font = cell.CellStyle.GetFont(_workbook);
-                font.Color = IndexedColors.ValueOf(color.ToString()).Index;
-                cell.CellStyle.SetFont(font);
-            }
+            cell.SetStyle(style, color);
             cell.SetCellValue(value);
         }
 
@@ -290,13 +270,7 @@ namespace ExcelR
         public static void SetValue(this IRow row, int colNnum, bool value, Style style = Style.Normal, Color color = Color.Black)
         {
             var cell = row.CreateCell(colNnum);
-            cell.SetStyle(style);
-            if (color != Color.Black)
-            {
-                var font = cell.CellStyle.GetFont(_workbook);
-                font.Color = IndexedColors.ValueOf(color.ToString()).Index;
-                cell.CellStyle.SetFont(font);
-            }
+            cell.SetStyle(style, color);
             cell.SetCellValue(value);
         }
 
@@ -307,18 +281,14 @@ namespace ExcelR
         /// <param name="colNnum"></param>
         /// <param name="value"></param>
         /// <param name="style"></param>
+        /// <param name="color"></param>
         public static void SetValue(this IRow row, int colNnum, DateTime value, Style style = Style.Normal, Color color = Color.Black)
         {
             var cell = row.CreateCell(colNnum);
-            cell.SetStyle(style);
-            if (color != Color.Black)
-            {
-                var font = cell.CellStyle.GetFont(_workbook);
-                font.Color = IndexedColors.ValueOf(color.ToString()).Index;
-                cell.CellStyle.SetFont(font);
-            }
+            cell.SetStyle(style, color);
             cell.SetCellValue(value);
         }
+
 
 
         /// <summary>
@@ -331,48 +301,85 @@ namespace ExcelR
         public static void SetValue(this IRow row, int colNnum, double value, Style style = Style.Normal, Color color = Color.Black)
         {
             var cell = row.CreateCell(colNnum);
-            cell.SetStyle(style);
-            if (color != Color.Black)
-            {
-                var font = cell.CellStyle.GetFont(_workbook);
-                font.Color = IndexedColors.ValueOf(color.ToString()).Index;
-                cell.CellStyle.SetFont(font);
-            }
+            cell.SetStyle(style, color);
             cell.SetCellValue(value);
         }
 
-
+        /// <summary>
+        /// Set value in given cell no
+        /// </summary>
+        /// <param name="row"></param>
+        /// <param name="colNnum"></param>
+        /// <param name="propVal"></param>
+        /// <param name="propType"></param>
+        /// <param name="style"></param>
+        /// <param name="textColor"></param>
+        private static void SetValue(this IRow row, int colNnum, Type propType, object propVal, Style style = Style.Normal, Color textColor = Color.Black)
+        {
+            var cell = row.GetCell(colNnum)?? row.CreateCell(colNnum);
+            cell.SetStyle(style, textColor);
+            
+            if (propVal == null)
+            {
+                return;
+            }
+                if (propType == typeof(string))
+            {
+                cell.SetCellValue(propVal.ToString());
+            }
+            else if (propType == typeof(bool))
+            {
+                cell.SetCellValue(Convert.ToBoolean(propVal.ToString()));
+            }
+            else if (propType == typeof(int))
+            {
+                cell.SetCellValue(Convert.ToInt32(propVal.ToString()));
+            }
+            else if (propType == typeof(double) || propType == typeof(float))
+            {
+                cell.SetCellValue(Convert.ToDouble(propVal.ToString()));
+            }
+            else if (propType == typeof(DateTime) || propType == typeof(DateTime?))
+            {
+                cell.SetCellValue(Convert.ToDateTime(propVal.ToString()));
+            }
+            
+        }
 
         #region private methods
-        private static void SetStyle(this ICell cell, Style style)
+        private static void SetStyle(this ICell cell, Style style, Color textColor = Color.Black)
         {
-            if (style == Style.Normal)
-                return;
-            cell.CellStyle = GetStyle(style);
+            cell.CellStyle = GetStyle(style,textColor);
         }
         private static void SetStyle(this IRow row, Style style)
         {
-            if (style == Style.Normal)
-                return;
             row.RowStyle = GetStyle(style);
         }
 
-        private static ICellStyle GetStyle(Style style)
+        private static ICellStyle GetStyle(Style style,Color color = Color.Black)
         {
             switch (style)
             {
                 case Style.H1:
-                    return _h1Style;
+                   return GetStyle(22, color, FontBoldWeight.Bold);
                 case Style.H2:
-                    return _h2Style;
+                    return GetStyle(16, color, FontBoldWeight.Bold);
                 case Style.H3:
-                    return _h3Style;
+                    return GetStyle(12, color, FontBoldWeight.Bold);
+                default:
+                    return GetStyle(10, color);
             }
-            return _boldStyle;
         }
+
+        private static ICellStyle GetStyle(short fontSize=9, Color color = Color.Black, FontBoldWeight fontBoldWeight= FontBoldWeight.None, string fontName = "Calibri")
+        {
+            var font = GetFont(fontSize, fontName, color, fontBoldWeight);
+            return GetStyle(font);
+        }
+
         #endregion
 
-        #region private props
+            #region private props
         private static ICellStyle BoldStyle
         {
             get
