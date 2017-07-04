@@ -1,5 +1,5 @@
 # ExcelR
-This project helps to create/read xlsx files in an easy way.
+This project  helps to create/read xlsx files in an easy way.Best thing is you can dirctly export model to xlsx or import xlsx to model
 
 # Why ExcelR
 With the help of ExcelR you can
@@ -9,7 +9,7 @@ With the help of ExcelR you can
 - Control the color/font of column write to the xlsx file
 - Set diffrent heading style
 - Can read coustom property name with help of excelprop attribute
-- and a lot more.....
+- And a lot more .....
 
 # Examples:-
 * Create a test class
@@ -57,4 +57,34 @@ With the help of ExcelR you can
    ```
    var data= sheet.Read<TestModel>();
    ```
- Happy coding...............................
+   
+## Manually creating xlsx from complex models
+
+   ```
+        var sheet = ExportHelper.GetSheet();//you can pass custom sheet name 
+         var dataToWrite = new List<TestModel>
+        {
+         new TestModel {BoolProp = true, DateTimeProp = DateTime.Now, 
+         StringProp = "jitender", IntProp = 5},
+         new TestModel {BoolProp = false, StringProp = "jitende4r", 
+         IntProp = 1}
+         };
+         
+         var rowNo=0;
+         //create header row
+         var headerRow = sheet.CreateRow(rowNo++,Style.H1);
+         //Set header values
+         headerRow.SetValue(0,"String property")
+         //Create data rows and fill data
+         foreach(var item in dataToWrite){
+         var dataRow = sheet.CreateRow(rowNo++,Style.H1);
+         dataRow.SetValue(0,item.StringProp);
+         }
+         
+         //Save to  file
+         sheet.Woorkbook.Save(filePath);
+         //Output to stream
+          sheet.Woorkbook.ToStream();
+         
+   ```
+ # Need any help drop your queries:- cena666999@gmail.com
