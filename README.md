@@ -1,4 +1,5 @@
-# ExcelR
+# ExcelR 
+[![NuGet Version](https://img.shields.io/badge/nuget-v1.0.1-blue.svg)](https://www.nuget.org/packages/ExcelR/) 
 This project  helps to create/read xlsx files in an easy way.Best thing is you can dirctly export model to xlsx or import xlsx to model
 
 # Why ExcelR
@@ -10,6 +11,13 @@ With the help of ExcelR you can
 - Set diffrent heading style
 - Can read coustom property name with help of excelprop attribute
 - And a lot more .....
+
+# Dependancy and required references 
+- NPOI v2.3.0
+- NPOI.O0XML.dll
+- NPOI.OpenXml4Net.dll
+- NPOI.OpenXmlFormats.dll
+- ICSharpCode.SharpZipLib.dll
 
 # Examples:-
 * Create a test class
