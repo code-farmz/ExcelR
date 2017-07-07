@@ -12,11 +12,8 @@ namespace ExcelR
     public static class ExportHelper
     {
         private static IWorkbook _workbook;
-        private static ICellStyle _boldStyle;
-        private static ICellStyle _h1Style;
-        private static ICellStyle _h2Style;
-        private static ICellStyle _h3Style;
 
+        private static IDictionary<IFont, ICellStyle> _styles; 
         #region Enums
         public enum Color
         {
@@ -73,10 +70,25 @@ namespace ExcelR
 
         public enum Style
         {
+            /// <summary>
+            /// 
+            /// </summary>
             Normal,
+            /// <summary>
+            /// Bold font with text size 9
+            /// </summary>
             Bold,
+            /// <summary>
+            /// Bold font with text size 22
+            /// </summary>
             H1,
+            /// <summary>
+            /// Bold font with text size 16
+            /// </summary>
             H2,
+            /// <summary>
+            /// Bold font with text size 10
+            /// </summary>
             H3
         }
         #endregion
@@ -86,80 +98,9 @@ namespace ExcelR
         static ExportHelper()
         {
             _workbook = GetWorkbook();
-            _boldStyle = BoldStyle;
-            _h1Style = H1Style;
-            _h2Style = H2Style;
-            _h3Style = H3Style;
+            _styles = new Dictionary<IFont, ICellStyle>();
         }
 
-        /// <summary>
-        /// Add new sheet to the workbook
-        /// </summary>
-        /// <param name="workbook"></param>
-        /// <param name="sheetName"></param>
-        /// <returns></returns>
-        public static ISheet CreateSheet(this IWorkbook workbook, string sheetName)
-        {
-            return workbook.CreateSheet(sheetName);
-        }
-
-        /// <summary>
-        /// Write given model data to sheet supported data types(int,bool,datetime,string,double,float)
-        /// </summary>
-        /// <param name="sheet"></param>
-        /// <param name="data"></param>
-        /// <param name="headerStyle">Header row style</param>
-        /// <param name="textStyle">text style</param>
-        /// <returns></returns>
-        public static ISheet Write<TModel>(this ISheet sheet, IList<TModel> data, Style headerStyle = Style.H2, Color headerColor = Color.Black,Style textStyle = Style.Normal, Color textColor = Color.Black)
-        {
-            sheet.SetHeader(data, headerStyle,headerColor);
-            sheet.FillData(data,textStyle,textColor);
-            return sheet;
-        }
-
-        private static void SetHeader<TModel>(this ISheet sheet, IList<TModel> data, Style headerStyle = Style.H2,Color color=Color.Black)
-        {
-            foreach (var propertyInfo in data.GetType().GenericTypeArguments[0].GetProperties().Select((info, index) => new { info, index }))
-            {
-                var propName = propertyInfo.info.Name;
-                var attribute = propertyInfo.info.GetCustomAttributes(typeof(ExcelRProp), false).FirstOrDefault();
-                var attrVal = attribute as ExcelRProp;
-                if (!string.IsNullOrEmpty(attrVal?.Name))
-                    propName = attrVal.Name;
-                var hearderRow = sheet.CreateRow(0, headerStyle);
-                hearderRow.SetValue(propertyInfo.index, propName, headerStyle, color);
-            }
-        }
-
-        private static void FillData<TModel>(this ISheet sheet, IList<TModel> data, Style textStyle = Style.Normal,  Color textColor = Color.Black)
-        {
-            
-            foreach (var modelInfo in data.Select((model, index) => new { index, model }))
-            {
-                var row = sheet.CreateRow(modelInfo.index + 1, textStyle);
-                foreach (var propertyInfo in modelInfo.model.GetType().GetProperties().Select((info, index) => new { info, index }))
-                {
-                    var attribute = propertyInfo.info.GetCustomAttributes(typeof(ExcelRProp), false).FirstOrDefault();
-                    var attrVal = attribute as ExcelRProp;
-                    try
-                    {
-                        if (attrVal?.ColTextColor != null)
-                            textColor = (Color)Enum.Parse(typeof(Color), attrVal.ColTextColor, true);
-                    }
-                    catch (Exception)
-                    {
-                        
-                        throw new Exception($"{attrVal.ColTextColor} is not a valid color");
-                    }
-                   
-                    var propType = propertyInfo.info.PropertyType;
-                    var propVal = propertyInfo.info.GetValue(modelInfo.model);
-                    row.SetValue(propertyInfo.index, propType,propVal,textStyle,textColor);
-                    textColor = Color.Black;
-                }
-            }
-        }
 
         /// <summary>
         /// 
@@ -175,52 +116,36 @@ namespace ExcelR
         }
 
         /// <summary>
-        /// Save workbook to given filePath
-        /// </summary>
-        /// <param name="workbook"></param>
-        /// <param name="path"></param>
-        public static void Save(this IWorkbook workbook, string path)
-        {
-            using (var fileData = new FileStream(path, FileMode.Create))
-            {
-                _workbook.Write(fileData);
-            }
-        }
-
-        /// <summary>
-        /// Export workbook data to stream
-        /// </summary>
-        /// <param name="workbook"></param>
-        public static Stream ToStream(this IWorkbook workbook)
-        {
-            using (var stream = new MemoryStream())
-            {
-                _workbook.Write(stream);
-                return stream;
-            }
-        }
-
-        /// <summary>
-        /// Export workbook data to byte array
-        /// </summary>
-        /// <param name="workbook"></param>
-        public static byte[] ToByteArray(this IWorkbook workbook)
-        {
-            using (var stream = new MemoryStream())
-            {
-                _workbook.Write(stream);
-                return stream.ToArray();
-            }
-        }
-
-
-        /// <summary>
         /// 
         /// </summary>
         /// <returns></returns>
-        public static ISheet GetSheet(string sheetName = "Sheet1")
+        public static ISheet GetWorkSheet(string name = "Sheet1")
         {
-            return GetWorkbook().GetSheet(sheetName) ?? _workbook.CreateSheet(sheetName);
+            if (_workbook == null)
+            _workbook = new XSSFWorkbook();
+          return  _workbook.GetSheet(name) ?? _workbook.CreateSheet(name);
+        }
+
+        /// <summary>
+        /// Add new sheet to the workbook
+        /// </summary>
+        /// <param name="workbook"></param>
+        /// <param name="sheetName"></param>
+        /// <returns></returns>
+        public static ISheet CreateSheet(this IWorkbook workbook, string sheetName)
+        {
+            return workbook.CreateSheet(sheetName);
+        }
+
+      
+
+        /// <summary>
+        /// Get the sheet with given name will search in given workbook will create if exist
+        /// </summary>
+        /// <returns></returns>
+        public static ISheet GetWorkSheet(this IWorkbook workbook,string sheetName = "Sheet1")
+        {
+            return workbook.GetSheet(sheetName) ?? workbook.CreateSheet(sheetName);
         }
 
         /// <summary>
@@ -290,7 +215,6 @@ namespace ExcelR
         }
 
 
-
         /// <summary>
         /// Set number value in given cell no
         /// </summary>
@@ -298,6 +222,7 @@ namespace ExcelR
         /// <param name="colNnum"></param>
         /// <param name="value"></param>
         /// <param name="style"></param>
+        /// <param name="color"></param>
         public static void SetValue(this IRow row, int colNnum, double value, Style style = Style.Normal, Color color = Color.Black)
         {
             var cell = row.CreateCell(colNnum);
@@ -305,53 +230,28 @@ namespace ExcelR
             cell.SetCellValue(value);
         }
 
-        /// <summary>
-        /// Set value in given cell no
-        /// </summary>
-        /// <param name="row"></param>
-        /// <param name="colNnum"></param>
-        /// <param name="propVal"></param>
-        /// <param name="propType"></param>
-        /// <param name="style"></param>
-        /// <param name="textColor"></param>
-        private static void SetValue(this IRow row, int colNnum, Type propType, object propVal, Style style = Style.Normal, Color textColor = Color.Black)
-        {
-            var cell = row.GetCell(colNnum)?? row.CreateCell(colNnum);
-            cell.SetStyle(style, textColor);
-            
-            if (propVal == null)
-            {
-                return;
-            }
-                if (propType == typeof(string))
-            {
-                cell.SetCellValue(propVal.ToString());
-            }
-            else if (propType == typeof(bool))
-            {
-                cell.SetCellValue(Convert.ToBoolean(propVal.ToString()));
-            }
-            else if (propType == typeof(int))
-            {
-                cell.SetCellValue(Convert.ToInt32(propVal.ToString()));
-            }
-            else if (propType == typeof(double) || propType == typeof(float))
-            {
-                cell.SetCellValue(Convert.ToDouble(propVal.ToString()));
-            }
-            else if (propType == typeof(DateTime) || propType == typeof(DateTime?))
-            {
-                cell.SetCellValue(Convert.ToDateTime(propVal.ToString()));
-            }
-            
-        }
+
 
         #region private methods
-        private static void SetStyle(this ICell cell, Style style, Color textColor = Color.Black)
+
+      
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="cell"></param>
+        /// <param name="style"></param>
+        /// <param name="textColor"></param>
+        public static void SetStyle(this ICell cell, Style style, Color textColor = Color.Black)
         {
             cell.CellStyle = GetStyle(style,textColor);
         }
-        private static void SetStyle(this IRow row, Style style)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="row"></param>
+        /// <param name="style"></param>
+        public static void SetStyle(this IRow row, Style style)
         {
             row.RowStyle = GetStyle(style);
         }
@@ -365,7 +265,7 @@ namespace ExcelR
                 case Style.H2:
                     return GetStyle(16, color, FontBoldWeight.Bold);
                 case Style.H3:
-                    return GetStyle(12, color, FontBoldWeight.Bold);
+                    return GetStyle(11, color, FontBoldWeight.Bold);
                 default:
                     return GetStyle(10, color);
             }
@@ -379,48 +279,12 @@ namespace ExcelR
 
         #endregion
 
-            #region private props
-        private static ICellStyle BoldStyle
-        {
-            get
-            {
-                var font = GetFont(11, "Calibri", Color.Black, FontBoldWeight.Bold);
-                return GetStyle(font);
-            }
-
-        }
-
-        private static ICellStyle H1Style
-        {
-            get
-            {
-                var font = GetFont(22, "Calibri", Color.Black, FontBoldWeight.Bold);
-                return GetStyle(font);
-            }
-
-        }
-        private static ICellStyle H2Style
-        {
-            get
-            {
-                var font = GetFont(16, "Calibri", Color.Black, FontBoldWeight.Bold);
-                return GetStyle(font);
-            }
-
-        }
-
-        private static ICellStyle H3Style
-        {
-            get
-            {
-                var font = GetFont(10, "Calibri", Color.Black, FontBoldWeight.Bold);
-                return GetStyle(font);
-            }
-
-        }
+        #region private props
 
         private static ICellStyle GetStyle(IFont font)
         {
+            if (_styles.Any(s => s.Key.Equals(font)))
+                return _styles[font];
             var style = _workbook.CreateCellStyle();
             style.SetFont(font);
             return style;

@@ -1,6 +1,6 @@
 # ExcelR 
 [![NuGet Version](https://img.shields.io/badge/nuget-v1.0.1-blue.svg)](https://www.nuget.org/packages/ExcelR/) 
-This project  helps to create/read xlsx files in an easy way.Best thing is you can dirctly export model to xlsx or import xlsx to model
+This project  helps to create/read xlsx files in an easy way.Best thing is you can directly export model to xlsx or import xlsx to model
 
 # Why ExcelR
 With the help of ExcelR you can
@@ -20,46 +20,55 @@ With the help of ExcelR you can
 - ICSharpCode.SharpZipLib.dll
 
 # Examples:-
-* Create a test class
+* Lets we have test class and some sample data as follow
+  
    ```
    public class TestClass
     {
         [ExcelRProp(Name = "Custom String name",ColTextColor = "Red")] 
-        // you may skip above attribute
+        // ExcelRProp attribute provide a number of custom option for this column
         public string StringProp { get; set; }
         public bool BoolProp { get; set; }
         public DateTime? DateTimeProp { get; set; }
         public int IntProp { get; set; }
     }
+    var sampleData = new List<TestClass>
+        {
+         new TestClass {BoolProp = true, DateTimeProp = DateTime.Now, 
+         StringProp = "jitender", IntProp = 5},
+         new TestClass {BoolProp = false, StringProp = "jitende4r", 
+         IntProp = 1}
+         };
     ```
 ## Write and save data to xlsx file
+
+#### Method1:-
+```
+sampleData.ToExcel().Save(filePath);
+   ```
+
+#### Method2:-
 
 
 * Get worksheet and write data to sheet as follow
    ```
-         var sheet = ExportHelper.GetSheet();//you can pass custom sheet 
+         var sheet = ExportHelper.GetWorkSheet();//you can pass custom sheet 
          name 
-         var dataToWrite = new List<TestModel>
-        {
-         new TestModel {BoolProp = true, DateTimeProp = DateTime.Now, 
-         StringProp = "jitender", IntProp = 5},
-         new TestModel {BoolProp = false, StringProp = "jitende4r", 
-         IntProp = 1}
-         };
+        //File data in the sheet
          sheet.Write(dataToWrite);
     ```
 * Save sheet to stream or disk
    ```
-    var stream = sheet.Workbook.ToStream();
-    sheet.Workbook.Save(filePath);
+    var stream = sheet.ToStream();
+    sheet.Save(filePath);
    ```
    
 ## Read data from xlsx file or stream
 * Get worksheet from file or stream
    ```
-   var workSheet=ImportHelper.GetSheet(filePath)
+   var workSheet=ImportHelper.GetWorkSheet(filePath)
                      Or
-    var workSheet=ImportHelper.GetSheet(stream)
+    var workSheet=ImportHelper.GetWorkSheet(stream)
    ```
  * Read data from sheet
    ```
@@ -69,22 +78,14 @@ With the help of ExcelR you can
 ## Manually creating xlsx from complex models
 
    ```
-        var sheet = ExportHelper.GetSheet();//you can pass custom sheet name 
-         var dataToWrite = new List<TestModel>
-        {
-         new TestModel {BoolProp = true, DateTimeProp = DateTime.Now, 
-         StringProp = "jitender", IntProp = 5},
-         new TestModel {BoolProp = false, StringProp = "jitende4r", 
-         IntProp = 1}
-         };
-         
+        var sheet = ExportHelper.GetWorkSheet();//you can pass custom sheet name 
          var rowNo=0;
          //create header row
          var headerRow = sheet.CreateRow(rowNo++,Style.H1);
          //Set header values
          headerRow.SetValue(0,"String property")
          //Create data rows and fill data
-         foreach(var item in dataToWrite){
+         foreach(var item in sampleData){
          var dataRow = sheet.CreateRow(rowNo++,Style.H1);
          dataRow.SetValue(0,item.StringProp);
          }

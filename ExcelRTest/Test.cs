@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Runtime.Remoting.Channels;
 using ExcelR;
+using ExcelR.Extensions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace ExcelRTest
@@ -12,18 +13,14 @@ namespace ExcelRTest
         [TestMethod]
         public void ExportTester()
         {
-            var sheet = ExportHelper.GetSheet();
-
-            var data = GetList();
-            sheet.Write(data,ExportHelper.Style.H3,ExportHelper.Color.Aqua);
-            var stream = sheet.Workbook.ToByteArray();
-            sheet.Workbook.Save(@"C:\Users\Cena\Documents\Visual Studio 2015\Projects\ExcelR\ExcelRTest\docs\abc.xlsx");
+           var data = GetList();
+           data.ToExcel("Sheet1",ExportHelper.Style.H3,ExportHelper.Color.Aqua).Save(@"C:\Users\Cena\Documents\Visual Studio 2015\Projects\ExcelR\ExcelRTest\docs\abc.xlsx");
         }
         [TestMethod]
         public void ImportTester()
         {
             var sheet =
-                ImportHelper.GetSheet(
+                ImportHelper.GetWorkSheet(
                     @"C:\Users\Cena\Documents\Visual Studio 2015\Projects\ExcelR\ExcelRTest\docs\abc.xlsx");
 
            var data= sheet.Read<TestModel>();
@@ -33,7 +30,10 @@ namespace ExcelRTest
             var list = new List<TestModel>
             {
                 new TestModel {Bool = true, DateTime = DateTime.Now, String = "jitender", Int = 5},
-                new TestModel {Bool = false, String = "jitende4r", Int = 1}
+                new TestModel {Bool = true,  String = "raj"},
+                new TestModel {Bool = true, DateTime = DateTime.Now.AddDays(15), String = "jit", Int = 45},
+                new TestModel {Bool = true, DateTime = DateTime.Now, String = "cena", Int = 455},
+                new TestModel {Bool = false, String = "john", Int = 1}
             };
             return list;
         }

@@ -12,31 +12,65 @@ using NPOI.XSSF.UserModel;
 
 namespace ExcelR
 {
+    /// <summary>
+    /// Contains helper method to import an excel
+    /// </summary>
     public static class ImportHelper
     {
 
         private static IDictionary<string, string> _propColumnMap;
-        public static ISheet GetSheet(this IWorkbook workbook, string sheetName= "Sheet1")
+
+        /// <summary>
+        /// Get sheet from work book
+        /// </summary>
+        /// <param name="workbook"></param>
+        /// <param name="sheetName"></param>
+        /// <returns></returns>
+        public static ISheet GetWorkSheet(this IWorkbook workbook, string sheetName= "Sheet1")
         {
             return workbook.GetSheet(sheetName);
         }
 
-        public static ISheet GetSheet(Stream stream, string sheetName="Sheet1")
+        /// <summary>
+        /// Get worksheet from given stream
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <param name="sheetName"></param>
+        /// <returns></returns>
+        public static ISheet GetWorkSheet(Stream stream, string sheetName="Sheet1")
         {
             var workbook = GetWorkbook(stream);
             return workbook.GetSheet(sheetName);
         }
 
-        public static ISheet GetSheet(string filePath, string sheetName = "Sheet1")
+        /// <summary>
+        /// Get worksheet from given  path
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <param name="sheetName"></param>
+        /// <returns></returns>
+        public static ISheet GetWorkSheet(string filePath, string sheetName = "Sheet1")
         {
             var workbook = GetWorkbook(filePath);
             return workbook.GetSheet(sheetName);
         }
+
+        /// <summary>
+        /// Get workbook from stream
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <returns></returns>
         public static IWorkbook GetWorkbook(Stream stream)
         {
             return new XSSFWorkbook(stream);
         }
 
+        /// <summary>
+        /// Get workbook from disk path
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
         public static IWorkbook GetWorkbook(string filePath)
         {
             if(!File.Exists(filePath))
@@ -103,17 +137,22 @@ namespace ExcelR
                             }
                             else if (propType == typeof(int) || propType == typeof(int?))
                             {
-                                propertyInfo.SetValue(model, Convert.ToInt32(GetStringCellValue(cell)));
+                                int intVal;
+                                int.TryParse(GetStringCellValue(cell), out intVal);
+                                propertyInfo.SetValue(model, intVal);
                             }
                             else if (propType == typeof(double) || propType == typeof(double?))
                             {
-                                propertyInfo.SetValue(model, Convert.ToDouble(GetStringCellValue(cell)));
+                                double val;
+                                double.TryParse(GetStringCellValue(cell), out val);
+                                propertyInfo.SetValue(model, val);
                             }
                             else if (propType == typeof(float) || propType == typeof(float?))
                             {
-                                var val = GetStringCellValue(cell);
-                                if (!string.IsNullOrEmpty(val))
-                                    propertyInfo.SetValue(model, float.Parse(val));
+                                float val;
+                                    float.TryParse(GetStringCellValue(cell),out val);
+                                
+                                    propertyInfo.SetValue(model, val);
                             }
                             else if (propType == typeof(DateTime) || propType == typeof(DateTime?))
                             {
@@ -127,6 +166,7 @@ namespace ExcelR
             return list;
         }
 
+
         private static IDictionary<string, string> GetSetPropColumnMapings<TModel>(this TModel model, IRow headerRow)
         {
             if (_propColumnMap != null && _propColumnMap.Count > 0)
@@ -136,12 +176,9 @@ namespace ExcelR
             {
                 var name = propertyInfo.Name;
                 var attribute = propertyInfo.GetCustomAttributes(typeof(ExcelRProp), false).FirstOrDefault();
-                if (attribute != null)
-                {
-                    var attrVal = attribute as ExcelRProp;
-                    if (!string.IsNullOrEmpty(attrVal?.Name))
-                        name = attrVal.Name;
-                }
+                var attrVal = attribute as ExcelRProp;
+                if (!string.IsNullOrEmpty(attrVal?.Name))
+                    name = attrVal.Name;
                 var matchingCell =
                     headerRow.Cells.FirstOrDefault(
                         cell =>
@@ -157,6 +194,11 @@ namespace ExcelR
         }
 
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="cell"></param>
+        /// <returns></returns>
         public static string GetStringCellValue(ICell cell)
         {
             if (cell == null)
@@ -174,6 +216,11 @@ namespace ExcelR
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="cell"></param>
+        /// <returns></returns>
         public static bool? GetBooleanCellValue(ICell cell)
         {
             if (cell == null)
@@ -182,11 +229,18 @@ namespace ExcelR
             {
                 case CellType.Boolean:
                     return cell.BooleanCellValue;
+                case CellType.String:
+                    return Convert.ToBoolean(cell.StringCellValue);
                 default:
                     return null;
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="cell"></param>
+        /// <returns></returns>
         public static DateTime? GetDateTimeCellValue(ICell cell)
         {
             if (cell == null)

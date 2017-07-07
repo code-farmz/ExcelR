@@ -13,8 +13,10 @@ namespace ExcelRTest
         [ExcelRProp(Name = "TestString")]
         public string String { get; set; }
 
+        [ExcelRProp(SkipExport = true)]
         public bool Bool { get; set; }
 
+        [ExcelRProp(HeadTextColor = "Blue")]
         public DateTime? DateTime { get; set; }
 
         [ExcelRProp(ColTextColor = "Red")]
