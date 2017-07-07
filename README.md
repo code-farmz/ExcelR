@@ -1,6 +1,7 @@
 # ExcelR 
 [![NuGet Version](https://img.shields.io/badge/nuget-v1.0.1-blue.svg)](https://www.nuget.org/packages/ExcelR/) 
-This project  helps to create/read xlsx files in an easy way.Best thing is you can directly export model to xlsx or import xlsx to model
+
+This project  helps to create/read xlsx files in an easy way.Best thing is you can dirctly export model to xlsx or import xlsx to model
 
 # Why ExcelR
 With the help of ExcelR you can
