@@ -1,7 +1,7 @@
 # ExcelR 
 [![NuGet Version](https://img.shields.io/badge/nuget-v1.1.0-blue.svg)](https://www.nuget.org/packages/ExcelR/) 
 
-This project  helps to create/read xlsx files in an easy way.Best thing is you can dirctly export model to xlsx or import xlsx to model
+This project  helps to create/read xlsx/csv files in an easy way.Best thing is you can directly export model to xlsx or import xlsx to model
 
 # Why ExcelR
 With the help of ExcelR you can
@@ -63,6 +63,11 @@ sampleData.ToExcel().Save(filePath);
     var stream = sheet.ToStream();
     sheet.Save(filePath);
    ```
+
+## Write and save data to xlsx file
+ ```
+sampleData.ToCsv(filePath);
+ ```
    
 ## Read data from xlsx file or stream
 * Get worksheet from file or stream

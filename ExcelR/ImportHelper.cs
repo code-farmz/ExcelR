@@ -121,44 +121,41 @@ namespace ExcelR
                     var attrVal = attribute as ExcelRProp;
                     if (!string.IsNullOrEmpty(attrVal?.Name))
                         name = attrVal.Name;
+                    if(!mapDict.ContainsKey(name)) continue;
                     var cellNo = mapDict[name];
-                    if (cellNo != null)
+                    if (cellNo == null) continue;
+                    var cell = row.GetCell(int.Parse(cellNo), MissingCellPolicy.RETURN_NULL_AND_BLANK);
+                    if (cell == null) continue;
+                    if (propType == typeof(string))
                     {
-                        var cell = row.GetCell(int.Parse(cellNo), MissingCellPolicy.RETURN_NULL_AND_BLANK);
-                        if (cell != null)
-                        {
-                            if (propType == typeof(string))
-                            {
-                                propertyInfo.SetValue(model, GetStringCellValue(cell));
-                            }
-                            else if (propType == typeof(bool) || propType == typeof(bool?))
-                            {
-                                propertyInfo.SetValue(model, GetBooleanCellValue(cell));
-                            }
-                            else if (propType == typeof(int) || propType == typeof(int?))
-                            {
-                                int intVal;
-                                int.TryParse(GetStringCellValue(cell), out intVal);
-                                propertyInfo.SetValue(model, intVal);
-                            }
-                            else if (propType == typeof(double) || propType == typeof(double?))
-                            {
-                                double val;
-                                double.TryParse(GetStringCellValue(cell), out val);
-                                propertyInfo.SetValue(model, val);
-                            }
-                            else if (propType == typeof(float) || propType == typeof(float?))
-                            {
-                                float val;
-                                    float.TryParse(GetStringCellValue(cell),out val);
+                        propertyInfo.SetValue(model, GetStringCellValue(cell));
+                    }
+                    else if (propType == typeof(bool) || propType == typeof(bool?))
+                    {
+                        propertyInfo.SetValue(model, GetBooleanCellValue(cell));
+                    }
+                    else if (propType == typeof(int) || propType == typeof(int?))
+                    {
+                        int intVal;
+                        int.TryParse(GetStringCellValue(cell), out intVal);
+                        propertyInfo.SetValue(model, intVal);
+                    }
+                    else if (propType == typeof(double) || propType == typeof(double?))
+                    {
+                        double val;
+                        double.TryParse(GetStringCellValue(cell), out val);
+                        propertyInfo.SetValue(model, val);
+                    }
+                    else if (propType == typeof(float) || propType == typeof(float?))
+                    {
+                        float val;
+                        float.TryParse(GetStringCellValue(cell),out val);
                                 
-                                    propertyInfo.SetValue(model, val);
-                            }
-                            else if (propType == typeof(DateTime) || propType == typeof(DateTime?))
-                            {
-                                propertyInfo.SetValue(model, GetDateTimeCellValue(cell));
-                            }
-                        }
+                        propertyInfo.SetValue(model, val);
+                    }
+                    else if (propType == typeof(DateTime) || propType == typeof(DateTime?))
+                    {
+                        propertyInfo.SetValue(model, GetDateTimeCellValue(cell));
                     }
                 }
                 list.Add(model);

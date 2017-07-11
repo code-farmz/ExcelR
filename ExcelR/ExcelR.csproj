@@ -65,6 +65,7 @@
   <ItemGroup>
     <Compile Include="Attributes\ExcelRProp.cs" />
     <Compile Include="ExportHelper.cs" />
+    <Compile Include="Extensions\Csv.cs" />
     <Compile Include="Extensions\Excel.cs" />
     <Compile Include="ImportHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

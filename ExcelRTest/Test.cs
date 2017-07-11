@@ -11,13 +11,13 @@ namespace ExcelRTest
     public class Test
     {
         [TestMethod]
-        public void ExportTester()
+        public void ExcelExportTester()
         {
            var data = GetList();
            data.ToExcel("Sheet1",ExportHelper.Style.H3,ExportHelper.Color.Aqua).Save(@"C:\Users\Cena\Documents\Visual Studio 2015\Projects\ExcelR\ExcelRTest\docs\abc.xlsx");
         }
         [TestMethod]
-        public void ImportTester()
+        public void ExcelImportTester()
         {
             var sheet =
                 ImportHelper.GetWorkSheet(
@@ -25,6 +25,15 @@ namespace ExcelRTest
 
            var data= sheet.Read<TestModel>();
         }
+
+        [TestMethod]
+        public void CsvExportTester()
+        {
+            var data = GetList();
+            data.ToCsv(@"D:\abcTest.csv");
+
+        }
+
         private List<TestModel> GetList()
         {
             var list = new List<TestModel>

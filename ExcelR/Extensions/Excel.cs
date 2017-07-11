@@ -137,8 +137,6 @@ namespace ExcelR.Extensions
                 var propName = propertyInfo.info.Name;
                 var attribute = propertyInfo.info.GetCustomAttributes(typeof(ExcelRProp), false).FirstOrDefault();
                 var attrVal = attribute as ExcelRProp;
-                if (attrVal?.SkipExport ?? false)
-                    continue;
                 if (!string.IsNullOrEmpty(attrVal?.Name))
                     propName = attrVal.Name;
                 try
@@ -177,8 +175,6 @@ namespace ExcelR.Extensions
                 {
                     var attribute = propertyInfo.info.GetCustomAttributes(typeof(ExcelRProp), false).FirstOrDefault();
                     var attrVal = attribute as ExcelRProp;
-                    if (attrVal?.SkipExport ?? false)
-                        continue;
                     try
                     {
                         if (attrVal?.ColTextColor != null)
