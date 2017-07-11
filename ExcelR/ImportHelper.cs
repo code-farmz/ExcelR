@@ -137,20 +137,19 @@ namespace ExcelR
                     else if (propType == typeof(int) || propType == typeof(int?))
                     {
                         int intVal;
-                        int.TryParse(GetStringCellValue(cell), out intVal);
+                        if (int.TryParse(GetStringCellValue(cell), out intVal))
                         propertyInfo.SetValue(model, intVal);
                     }
                     else if (propType == typeof(double) || propType == typeof(double?))
                     {
                         double val;
-                        double.TryParse(GetStringCellValue(cell), out val);
+                        if (double.TryParse(GetStringCellValue(cell), out val))
                         propertyInfo.SetValue(model, val);
                     }
                     else if (propType == typeof(float) || propType == typeof(float?))
                     {
                         float val;
-                        float.TryParse(GetStringCellValue(cell),out val);
-                                
+                        if (float.TryParse(GetStringCellValue(cell),out val))
                         propertyInfo.SetValue(model, val);
                     }
                     else if (propType == typeof(DateTime) || propType == typeof(DateTime?))

@@ -7,13 +7,14 @@ using System.Text;
 using System.Threading.Tasks;
 using ExcelR.Attributes;
 using NPOI.HSSF.Record.Chart;
+using NPOI.SS.UserModel;
 
 namespace ExcelR.Extensions
 {
     /// <summary>
     /// Contains extension methods to create csv
     /// </summary>
-    public static class Csv
+    public static class CsvHelper
     {
         private static IDictionary<string, int> _propColumnMap;
         #region Write methods
@@ -63,7 +64,7 @@ namespace ExcelR.Extensions
         /// <param name="delimiter">Separator to used default will be ,</param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static void ToCsv<T>(this IList<T> data, string filePath,char delimiter = ',')
+        public static void ToCsv<T>(this IList<T> data, string filePath, char delimiter = ',')
         {
             using (var writer = new StreamWriter(filePath))
             {
@@ -135,25 +136,101 @@ namespace ExcelR.Extensions
         /// work in progress
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="filePath"></param>
+        /// <param name="filePath">Source file path</param>
         /// <param name="delimiter"></param>
         /// <returns></returns>
-        private static IList<T> ReadFromCsv<T>(string filePath,char delimiter=',')
+        public static IList<T> ReadFromFile<T>(string filePath, char delimiter = ',')
         {
-            using (var streamReader = new StreamReader(filePath))
+           using (var streamReader = new StreamReader(filePath))
             {
+                var retVal = new List<T>();
+                Activator.CreateInstance<T>().SetPropColumnMapings(streamReader, delimiter);
+                if (_propColumnMap == null || !_propColumnMap.Any())
+                    return retVal;
                 string row;
+                var rowno=0;
                 while ((row = streamReader.ReadLine()) != null)
                 {
-                    
+                    rowno += 1;
+                    if (rowno <= 1) continue;
+                    var keys = row.Split(delimiter);
+                    var model = Activator.CreateInstance<T>();
+                    foreach (var propertyInfo in model.GetType().GetProperties())
+                    {
+                        var propType = propertyInfo.PropertyType;
+                        var name = propertyInfo.Name;
+                        var attribute = propertyInfo.GetCustomAttributes(typeof(ExcelRProp), false).FirstOrDefault();
+                        var attrVal = attribute as ExcelRProp;
+                        if (!string.IsNullOrEmpty(attrVal?.Name))
+                            name = attrVal.Name;
+                        if (!_propColumnMap.ContainsKey(name)) continue;
+                        var index = _propColumnMap[name];
+                        var matchingValue = keys[index];
+                        if(string.IsNullOrEmpty(matchingValue)) continue;
+                        if (propType == typeof(string))
+                        {
+                            propertyInfo.SetValue(model, matchingValue);
+                        }
+                        else if (propType == typeof(bool) || propType == typeof(bool?))
+                        {
+                            bool val;
+                            if(bool.TryParse(matchingValue, out val))
+                            propertyInfo.SetValue(model, val);
+                        }
+                        else if (propType == typeof(int) || propType == typeof(int?))
+                        {
+                            int val;
+                            if (int.TryParse(matchingValue, out val))
+                                propertyInfo.SetValue(model, val);
+                        }
+                        else if (propType == typeof(double) || propType == typeof(double?))
+                        {
+                            double val;
+                            if (double.TryParse(matchingValue, out val))
+                                propertyInfo.SetValue(model, val);
+                        }
+                        else if (propType == typeof(float) || propType == typeof(float?))
+                        {
+                            float val;
+                            if (float.TryParse(matchingValue, out val))
+                                propertyInfo.SetValue(model, val);
+                        }
+                        else if (propType == typeof(DateTime) || propType == typeof(DateTime?))
+                        {
+                            DateTime val;
+                            if (DateTime.TryParse(matchingValue, out val))
+                                propertyInfo.SetValue(model, val);
+                        }
+                    }
+                    retVal.Add(model);
                 }
+                return retVal;
             }
-            return new List<T>();
         }
 
-        private static void SetMappings(string headerRow)
+        private static void SetPropColumnMapings<TModel>(this TModel model, StreamReader streamReader, char delimiter)
         {
-            
+            _propColumnMap = new Dictionary<string, int>();
+            var keys = new string[] { };
+            string row;
+            while ((row = streamReader.ReadLine()) != null)
+            {
+                keys = row.Split(delimiter);
+                break;
+            }
+
+            if (!keys.Any()) return;
+            foreach (var propertyInfo in model.GetType().GetProperties())
+            {
+                var name = propertyInfo.Name;
+                var attribute = propertyInfo.GetCustomAttributes(typeof(ExcelRProp), false).FirstOrDefault();
+                var attrVal = attribute as ExcelRProp;
+                if (!string.IsNullOrEmpty(attrVal?.Name))
+                    name = attrVal.Name;
+                if (!keys.Any(key => key.ToLower().Equals(name.ToLower()))) continue;
+                var index = Array.IndexOf(keys, name);
+                _propColumnMap.Add(name, index);
+            }
         }
 
         #endregion

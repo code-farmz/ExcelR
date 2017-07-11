@@ -24,22 +24,30 @@ With the help of ExcelR you can
 * Lets we have test class and some sample data as follow
   
    ```
-   public class TestClass
+     public class TestModel
     {
-        [ExcelRProp(Name = "Custom String name",ColTextColor = "Red")] 
-        // ExcelRProp attribute provide a number of custom option for this column
-        public string StringProp { get; set; }
-        public bool BoolProp { get; set; }
-        public DateTime? DateTimeProp { get; set; }
-        public int IntProp { get; set; }
+        [ExcelRProp(Name = "First Name")]
+        public string FirstName { get; set; }
+
+
+        [ExcelRProp(ColTextColor = "Red", Name = "Last Name")]
+        public string LastName { get; set; }
+
+        [ExcelRProp(SkipExport = true)]
+        public bool IsMale { get; set; }
+
+        [ExcelRProp(HeadTextColor = "Blue" ,Name = "Date Of Birth")]
+        public DateTime? Dob { get; set; }
+
     }
-    var sampleData = new List<TestClass>
-        {
-         new TestClass {BoolProp = true, DateTimeProp = DateTime.Now, 
-         StringProp = "jitender", IntProp = 5},
-         new TestClass {BoolProp = false, StringProp = "jitende4r", 
-         IntProp = 1}
-         };
+    var sampleData = new List<TestModel>
+            {
+                new TestModel {IsMale = true, Dob = DateTime.Now, FirstName = "jitender", LastName = "kundu"},
+                new TestModel {IsMale = true,  FirstName = "raj"},
+                new TestModel {IsMale = true, Dob = DateTime.Now.AddDays(15), FirstName = "Michel"},
+                new TestModel {IsMale = true, Dob = DateTime.Now, FirstName = "Cena", LastName = "raj"},
+                new TestModel {IsMale = false, FirstName = "john", LastName = "Cena"}
+            };
     ```
 ## Write and save data to xlsx file
 
@@ -64,7 +72,7 @@ sampleData.ToExcel().Save(filePath);
     sheet.Save(filePath);
    ```
 
-## Write and save data to xlsx file
+## Write and save data to csv file
  ```
 sampleData.ToCsv(filePath);
  ```
@@ -80,6 +88,10 @@ sampleData.ToCsv(filePath);
    ```
    var data= sheet.Read<TestModel>();
    ```
+## Read data from csv file
+```
+ var data = CsvHelper.ReadFromFile<TestModel>(sourceFilePath);
+```
    
 ## Manually creating xlsx from complex models
 

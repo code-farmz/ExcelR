@@ -10,17 +10,19 @@ namespace ExcelRTest
 {
     public class TestModel
     {
-        [ExcelRProp(Name = "TestString")]
-        public string String { get; set; }
+        [ExcelRProp(Name = "First Name")]
+        public string FirstName { get; set; }
+
+
+        [ExcelRProp(ColTextColor = "Red", Name = "Last Name")]
+        public string LastName { get; set; }
 
         [ExcelRProp(SkipExport = true)]
-        public bool Bool { get; set; }
+        public bool IsMale { get; set; }
 
-        [ExcelRProp(HeadTextColor = "Blue")]
-        public DateTime? DateTime { get; set; }
+        [ExcelRProp(HeadTextColor = "Blue" ,Name = "Date Of Birth")]
+        public DateTime? Dob { get; set; }
 
-        [ExcelRProp(ColTextColor = "Red")]
-        public int Int { get; set; }
     }
 
 }

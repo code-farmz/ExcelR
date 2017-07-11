@@ -34,15 +34,21 @@ namespace ExcelRTest
 
         }
 
+        [TestMethod]
+        public void CsvImportTester()
+        {
+            var data = CsvHelper.ReadFromFile<TestModel>(@"D:\abcTest.csv");
+        }
+
         private List<TestModel> GetList()
         {
             var list = new List<TestModel>
             {
-                new TestModel {Bool = true, DateTime = DateTime.Now, String = "jitender", Int = 5},
-                new TestModel {Bool = true,  String = "raj"},
-                new TestModel {Bool = true, DateTime = DateTime.Now.AddDays(15), String = "jit", Int = 45},
-                new TestModel {Bool = true, DateTime = DateTime.Now, String = "cena", Int = 455},
-                new TestModel {Bool = false, String = "john", Int = 1}
+                new TestModel {IsMale = true, Dob = DateTime.Now, FirstName = "jitender", LastName = "kundu"},
+                new TestModel {IsMale = true,  FirstName = "raj"},
+                new TestModel {IsMale = true, Dob = DateTime.Now.AddDays(15), FirstName = "Michel"},
+                new TestModel {IsMale = true, Dob = DateTime.Now, FirstName = "Cena", LastName = "raj"},
+                new TestModel {IsMale = false, FirstName = "john", LastName = "Cena"}
             };
             return list;
         }

@@ -1,16 +1,16 @@
 <?xml version="1.0"?>
 <package >
   <metadata>
-    <id>ExcelR.dll</id>
-    <version>1.0.0</version>
+    <id>ExcelR</id>
+    <version>1.1.0</version>
     <authors>Jitender</authors>
     <owners>Jitender</owners>
     <projectUrl>https://github.com/JitenderKundu/ExcelR</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>ExcelR is a simple C# library that help to import export helper using npoi</description>
-    <releaseNotes>Added export helper and import helper.</releaseNotes>
+    <description>This project helps to create/read xlsx files in an easy way.Best thing is you can dirctly export model to xlsx or import xlsx to model</description>
+    <releaseNotes>Added skip column property.Added toExcel extension</releaseNotes>
     <copyright>Copyright 2017</copyright>
-    <tags>ExcelR ExcelReader ExcelImporter ExcelExporter ExcelHelper ExcelWriter</tags>
+    <tags>Excel ExcelR ExcelReader ExcelImporter ExcelExporter ExcelHelper ExcelWriter</tags>
     <dependencies>
       <dependency id="NPOI" version="2.3.0" />
     </dependencies>
