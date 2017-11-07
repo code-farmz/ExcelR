@@ -114,4 +114,4 @@ sampleData.ToCsv(filePath);
           sheet.Woorkbook.ToStream();
          
    ```
- # Need any help drop your queries:- cena666999@gmail.com
+ # Facing any issue [Log it here](https://github.com/JitenderKundu/ExcelR/issues/new)
