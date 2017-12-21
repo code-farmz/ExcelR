@@ -4,6 +4,7 @@ using System.Runtime.Remoting.Channels;
 using ExcelR;
 using ExcelR.Extensions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.IO;
 
 namespace ExcelRTest
 {
@@ -14,7 +15,9 @@ namespace ExcelRTest
         public void ExcelExportTester()
         {
            var data = GetList();
-           data.ToExcel("Sheet1",ExportHelper.Style.H3,ExportHelper.Color.Aqua).Save(@"C:\Users\Cena\Documents\Visual Studio 2015\Projects\ExcelR\ExcelRTest\docs\abc.xlsx");
+            if(!Directory.Exists($"{Environment.CurrentDirectory}/docs"))
+                Directory.CreateDirectory($"{Environment.CurrentDirectory}/docs");
+           data.ToExcel("Sheet1",ExportHelper.Style.H3,ExportHelper.Color.Aqua).Save($"{Environment.CurrentDirectory}/docs/test_{DateTime.Now.Millisecond}.xlsx");
         }
         [TestMethod]
         public void ExcelImportTester()

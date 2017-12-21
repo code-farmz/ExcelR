@@ -122,7 +122,7 @@ namespace ExcelR.Extensions
         /// <returns></returns>
         public static IWorkbook ToExcel<TModel>(this IList<TModel> data,string sheetName, ExportHelper.Style headerStyle = ExportHelper.Style.H2, ExportHelper.Color headerColor = ExportHelper.Color.Black, ExportHelper.Style textStyle = ExportHelper.Style.Normal, ExportHelper.Color textColor = ExportHelper.Color.Black)
         {
-            var sheet = ExportHelper.GetWorkSheet(sheetName);
+            var sheet = new ExportHelper().GetWorkSheet(sheetName);
             sheet.SetHeader(data, headerStyle, headerColor);
             sheet.FillData(data, textStyle, textColor);
             return sheet.Workbook;
