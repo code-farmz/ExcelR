@@ -3,10 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using ExcelR.Attributes;
 using NPOI.SS.UserModel;
+using static ExcelR.Enums.Excel;
 
 namespace ExcelR.Extensions
 {
@@ -103,7 +102,7 @@ namespace ExcelR.Extensions
         /// <param name="textStyle">text style for whole sheet</param>
         /// <param name="textColor">Text color</param>
         /// <returns></returns>
-        public static ISheet Write<TModel>(this ISheet sheet, IList<TModel> data, ExportHelper.Style headerStyle = ExportHelper.Style.H2, ExportHelper.Color headerColor = ExportHelper.Color.Black, ExportHelper.Style textStyle = ExportHelper.Style.Normal, ExportHelper.Color textColor = ExportHelper.Color.Black)
+        public static ISheet Write<TModel>(this ISheet sheet, IList<TModel> data, Style headerStyle = Style.H2, Color headerColor = Color.Black, Style textStyle = Style.Normal, Color textColor = Color.Black)
         {
             sheet.SetHeader(data, headerStyle, headerColor);
             sheet.FillData(data, textStyle, textColor);
@@ -120,7 +119,7 @@ namespace ExcelR.Extensions
         /// <param name="textStyle">text style for whole sheet</param>
         /// <param name="textColor">Text color</param>
         /// <returns></returns>
-        public static IWorkbook ToExcel<TModel>(this IList<TModel> data,string sheetName, ExportHelper.Style headerStyle = ExportHelper.Style.H2, ExportHelper.Color headerColor = ExportHelper.Color.Black, ExportHelper.Style textStyle = ExportHelper.Style.Normal, ExportHelper.Color textColor = ExportHelper.Color.Black)
+        public static IWorkbook ToExcel<TModel>(this IList<TModel> data,string sheetName, Style headerStyle = Style.H2, Color headerColor = Color.Black, Style textStyle = Style.Normal, Color textColor = Color.Black)
         {
             var sheet = new ExportHelper().GetWorkSheet(sheetName);
             sheet.SetHeader(data, headerStyle, headerColor);
@@ -129,7 +128,7 @@ namespace ExcelR.Extensions
         }
 
         #region private methods
-        private static void SetHeader<TModel>(this ISheet sheet, IList<TModel> data, ExportHelper.Style headerStyle = ExportHelper.Style.H2, ExportHelper.Color color = ExportHelper.Color.Black)
+        private static void SetHeader<TModel>(this ISheet sheet, IList<TModel> data, Style headerStyle = Style.H2, Color color = Color.Black)
         {
             foreach (var propertyInfo in data.GetType().GenericTypeArguments[0].GetProperties().Where(Include).Select((info, index) => new { info, index }))
             {
@@ -142,7 +141,7 @@ namespace ExcelR.Extensions
                 try
                 {
                     if (attrVal?.HeadTextColor != null)
-                        headColor = (ExportHelper.Color)Enum.Parse(typeof(ExportHelper.Color), attrVal.HeadTextColor, true);
+                        headColor = (Color)Enum.Parse(typeof(Color), attrVal.HeadTextColor, true);
                 }
                 catch (Exception)
                 {
@@ -165,7 +164,7 @@ namespace ExcelR.Extensions
         }
 
 
-        private static void FillData<TModel>(this ISheet sheet, IList<TModel> data, ExportHelper.Style textStyle = ExportHelper.Style.Normal, ExportHelper.Color textColor = ExportHelper.Color.Black)
+        private static void FillData<TModel>(this ISheet sheet, IList<TModel> data, Style textStyle = Style.Normal, Color textColor = Color.Black)
         {
 
             foreach (var modelInfo in data.Select((model, index) => new { index, model }))
@@ -178,7 +177,7 @@ namespace ExcelR.Extensions
                     try
                     {
                         if (attrVal?.ColTextColor != null)
-                            textColor = (ExportHelper.Color)Enum.Parse(typeof(ExportHelper.Color), attrVal.ColTextColor, true);
+                            textColor = (Color)Enum.Parse(typeof(Color), attrVal.ColTextColor, true);
                     }
                     catch (Exception)
                     {
@@ -189,7 +188,7 @@ namespace ExcelR.Extensions
                     var propType = propertyInfo.info.PropertyType;
                     var propVal = propertyInfo.info.GetValue(modelInfo.model);
                     row.SetValue(propertyInfo.index, propType, propVal, textStyle, textColor);
-                    textColor = ExportHelper.Color.Black;
+                    textColor = Color.Black;
                 }
             }
         }
@@ -203,7 +202,7 @@ namespace ExcelR.Extensions
         /// <param name="propType"></param>
         /// <param name="style"></param>
         /// <param name="textColor"></param>
-        private static void SetValue(this IRow row, int colNnum, Type propType, object propVal, ExportHelper.Style style = ExportHelper.Style.Normal, ExportHelper.Color textColor = ExportHelper.Color.Black)
+        private static void SetValue(this IRow row, int colNnum, Type propType, object propVal, Style style = Style.Normal, Color textColor = Color.Black)
         {
             var cell = row.GetCell(colNnum) ?? row.CreateCell(colNnum);
             cell.SetStyle(style, textColor);

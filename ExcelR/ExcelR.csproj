@@ -64,6 +64,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Attributes\ExcelRProp.cs" />
+    <Compile Include="Enums\Excel.cs" />
     <Compile Include="ExportHelper.cs" />
     <Compile Include="Extensions\CsvHelper.cs" />
     <Compile Include="Extensions\Excel.cs" />

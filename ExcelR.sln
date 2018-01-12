@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.26730.16
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExcelR", "ExcelR\ExcelR.csproj", "{840F3AB2-56EF-4917-8D55-C4CB48279403}"
 EndProject
@@ -21,8 +21,15 @@ Global
 		{DBD2FD3B-85C4-4333-9A54-8FF7ED332C2E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DBD2FD3B-85C4-4333-9A54-8FF7ED332C2E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DBD2FD3B-85C4-4333-9A54-8FF7ED332C2E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FBDCA31E-64DA-49AE-8074-B568F259C8D3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FBDCA31E-64DA-49AE-8074-B568F259C8D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FBDCA31E-64DA-49AE-8074-B568F259C8D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FBDCA31E-64DA-49AE-8074-B568F259C8D3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {57491DA1-DBB5-4A8B-BFBF-C76F90BA600A}
 	EndGlobalSection
 EndGlobal

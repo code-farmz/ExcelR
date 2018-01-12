@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.Remoting.Channels;
 using ExcelR;
 using ExcelR.Extensions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
+using static ExcelR.Enums.Excel;
 
 namespace ExcelRTest
 {
@@ -12,38 +12,38 @@ namespace ExcelRTest
     public class Test
     {
         [TestMethod]
-        public void ExcelExportTester()
+        public string ExportExcel()
         {
-           var data = GetList();
-            if(!Directory.Exists($"{Environment.CurrentDirectory}/docs"))
-                Directory.CreateDirectory($"{Environment.CurrentDirectory}/docs");
-           data.ToExcel("Sheet1",ExportHelper.Style.H3,ExportHelper.Color.Aqua).Save($"{Environment.CurrentDirectory}/docs/test_{DateTime.Now.Millisecond}.xlsx");
+            var filePath = $"{DocsDirctory}/test_{DateTime.Now.Millisecond}.csv";
+            var data = GetSampleData();
+            data.ToExcel("Sheet1", Style.H3, Color.Aqua).Save(filePath);
+            return filePath;
         }
         [TestMethod]
-        public void ExcelImportTester()
+        public void ImportExcel()
         {
-            var sheet =
-                ImportHelper.GetWorkSheet(
-                    @"C:\Users\Cena\Documents\Visual Studio 2015\Projects\ExcelR\ExcelRTest\docs\abc.xlsx");
-
+           var sheet =ImportHelper.GetWorkSheet(ExportExcel());
            var data= sheet.Read<TestModel>();
         }
 
+
         [TestMethod]
-        public void CsvExportTester()
+        public string ExportCsv()
         {
-            var data = GetList();
-            data.ToCsv(@"D:\abcTest.csv");
+            var filePath = $"{DocsDirctory}/test_{DateTime.Now.Millisecond}.csv";
+            var data = GetSampleData();
+            data.ToCsv(filePath);
+            return filePath;
 
         }
 
         [TestMethod]
-        public void CsvImportTester()
+        public void ImportCsv()
         {
-            var data = CsvHelper.ReadFromFile<TestModel>(@"D:\abcTest.csv");
+            var data = CsvHelper.ReadFromFile<TestModel>(ExportCsv());
         }
 
-        private List<TestModel> GetList()
+        private List<TestModel> GetSampleData()
         {
             var list = new List<TestModel>
             {
@@ -55,5 +55,18 @@ namespace ExcelRTest
             };
             return list;
         }
+
+        #region private methods/props
+        private string DocsDirctory
+        {
+            get
+            {
+                if (!Directory.Exists($"{Environment.CurrentDirectory}/docs"))
+                    Directory.CreateDirectory($"{Environment.CurrentDirectory}/docs");
+                return $"{Environment.CurrentDirectory}/docs";
+            }
+        }
+        
+        #endregion
     }
 }
