@@ -1,5 +1,5 @@
 # ExcelR 
-[![NuGet Version](https://img.shields.io/badge/nuget-v1.1.0-blue.svg)](https://www.nuget.org/packages/ExcelR/) 
+[![NuGet Version](https://img.shields.io/badge/nuget-v1.3.0-blue.svg)](https://www.nuget.org/packages/ExcelR/) 
 
 This project  helps to create/read xlsx/csv files in an easy way.Best thing is you can directly export model to xlsx or import xlsx to model
 

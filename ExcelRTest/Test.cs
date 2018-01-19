@@ -14,7 +14,7 @@ namespace ExcelRTest
         [TestMethod]
         public string ExportExcel()
         {
-            var filePath = $"{DocsDirctory}/test_{DateTime.Now.Millisecond}.csv";
+            var filePath = $"{DocsDirctory}/test_{DateTime.Now.Millisecond}.xlsx";
             var data = GetSampleData();
             data.ToExcel("Sheet1", Style.H3, Color.Aqua).Save(filePath);
             return filePath;
